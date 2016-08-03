@@ -36,7 +36,7 @@
 (require 'comint)
 (require 'sql)
 (require 'expand-region)
-(require 'cl)
+(require 'cl-lib)
 
 (defgroup mysql-to-org nil
   "Mysql to org customizations."
@@ -99,11 +99,11 @@ STR is the output string of the PROC."
 (defun mysql-to-org--company-backend (command &optional arg &rest ignored)
   "Mysql to org company backend for completing of table and column names."
   (interactive (list 'interactive))
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'mysql-to-org--company-backend))
     (prefix (company-grab-symbol))
     (candidates (mapcar 'car
-                        (remove-if-not
+                        (cl-remove-if-not
                          (lambda (x) (string-prefix-p arg (car x)))
                          (with-current-buffer (get-buffer "mysql-to-org-company")
                            (s-match-strings-all "\\_<[a-z|_|0-9]*+\\_>"
