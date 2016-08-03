@@ -36,6 +36,7 @@
 (require 'comint)
 (require 'sql)
 (require 'expand-region)
+(require 'cl)
 
 (defgroup mysql-to-org nil
   "Mysql to org customizations."
