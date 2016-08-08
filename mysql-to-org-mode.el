@@ -51,6 +51,11 @@
   :type 'string
   :group 'mysql-to-org)
 
+(defcustom mysql-to-org-parameter-regexp ":\\w+"
+  "Regexp for finding parameters inside a sql query."
+  :type 'string
+  :group 'mysql-to-org)
+
 (defvar mysql-to-org-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-m e") 'mysql-to-org-eval)
@@ -112,7 +117,7 @@ STR is the output string of the PROC."
 
 (defun mysql-to-org--replace-query-params (query)
   "Replace the parameters of the QUERY by values supplied by the user."
-  (let* ((matches (s-match-strings-all ":\\w+" query))
+  (let* ((matches (s-match-strings-all mysql-to-org-parameter-regexp query))
          (replacements (mapcar (lambda (x)
                                  (cons (car x)
                                        (read-string (concat "value for "
