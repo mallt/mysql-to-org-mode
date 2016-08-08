@@ -131,7 +131,7 @@ STR is the output string of the PROC."
                  (concat "-u" mysql-to-org-mysql-user)
                  (concat "-p" (read-passwd "mysql passwd: ")))
     (mysql-to-org--load-company-candidates))
-  (add-to-list 'company-backends 'mysql-to-org--company-backend))
+  (add-to-list 'company-backends 'mysql-to-org--company-backend t))
 
 ;;;###autoload
 (defun mysql-to-org-eval ()
