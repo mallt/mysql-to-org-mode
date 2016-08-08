@@ -4,7 +4,7 @@
 ;;
 ;; Author: Tijs Mallaerts <tijs.mallaerts@gmail.com>
 
-;; Package-Requires: ((emacs "24.3") (s "1.11.0") (company "0.9.0") (expand-region "0.10.0"))
+;; Package-Requires: ((emacs "24.3") (s "1.11.0") (company "0.9.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@
 (require 'company)
 (require 'comint)
 (require 'sql)
-(require 'expand-region)
 (require 'cl-lib)
 
 (defgroup mysql-to-org nil
@@ -133,6 +132,18 @@ STR is the output string of the PROC."
     (mysql-to-org--load-company-candidates))
   (add-to-list 'company-backends 'mysql-to-org--company-backend t))
 
+(defun mysql-to-org--mark-string-at-point ()
+  "Mark the contents of the string at point."
+  (let ((ppss (syntax-ppss)))
+    (when (nth 3 ppss)
+      (let* ((sexp-beg (nth 8 ppss))
+             (sexp-end (progn (goto-char sexp-beg)
+                              (forward-sexp)
+                              (point))))
+        (push-mark (+ sexp-beg 1))
+        (goto-char (- sexp-end 1))
+        (exchange-point-and-mark)))))
+
 ;;;###autoload
 (defun mysql-to-org-eval ()
   "Evaluate the query inside the active region or current line."
@@ -160,7 +171,7 @@ STR is the output string of the PROC."
   "Evaluate the string at point."
   (interactive)
   (save-excursion
-    (er/mark-inside-quotes)
+    (mysql-to-org--mark-string-at-point)
     (mysql-to-org-eval)))
 
 ;;;###autoload
