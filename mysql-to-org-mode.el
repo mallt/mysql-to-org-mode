@@ -192,7 +192,7 @@ STR is the output string of the PROC."
 ;;;###autoload
 (define-minor-mode mysql-to-org-mode
   "Minor mode to output the results of mysql queries to org tables."
-  :lighter " mysql-to-org"
+  :lighter " mysql->org"
   :keymap mysql-to-org-mode-map
   :after-hook (mysql-to-org--start-process))
 
