@@ -187,7 +187,8 @@ STR is the output string of the PROC."
   (switch-to-buffer "*mysql-to-org-scratch*")
   (sql-mode)
   (setq sql-product 'mysql)
-  (mysql-to-org-mode))
+  (mysql-to-org-mode)
+  (set (make-local-variable 'company-backends) '(mysql-to-org--company-backend)))
 
 ;;;###autoload
 (define-minor-mode mysql-to-org-mode
