@@ -1,4 +1,4 @@
-;;; mysql-to-org-mode.el --- Minor mode to output the results of mysql queries to org tables -*- lexical-binding: t -*-
+;;; mysql-to-org.el --- Minor mode to output the results of mysql queries to org tables -*- lexical-binding: t -*-
 
 ;; Copyright © 2016 Tijs Mallaerts
 ;;
@@ -196,6 +196,6 @@ STR is the output string of the PROC."
   :keymap mysql-to-org-mode-map
   :after-hook (mysql-to-org--start-process))
 
-(provide 'mysql-to-org-mode)
+(provide 'mysql-to-org)
 
-;;; mysql-to-org-mode.el ends here
+;;; mysql-to-org.el ends here
