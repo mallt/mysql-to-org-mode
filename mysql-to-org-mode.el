@@ -24,9 +24,9 @@
 ;;; Commentary:
 
 ;; Minor mode to output the results of mysql queries to org tables.
-;; C-c m e will output the query inside the active region or current line to an org table.
-;; C-c m p will output the query defined by the string at point to an org table.
-;; C-c m s will open a mysql to org scratch buffer.
+;; C-c C-m e will output the query inside the active region or current line to an org table.
+;; C-c C-m p will output the query defined by the string at point to an org table.
+;; C-c C-m s will open a mysql to org scratch buffer.
 
 ;;; Code:
 
@@ -54,9 +54,9 @@
 
 (defvar mysql-to-org-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c m e") 'mysql-to-org-eval)
-    (define-key map (kbd "C-c m p") 'mysql-to-org-eval-string-at-point)
-    (define-key map (kbd "C-c m s") 'mysql-to-org-scratch)
+    (define-key map (kbd "C-c C-m e") 'mysql-to-org-eval)
+    (define-key map (kbd "C-c C-m p") 'mysql-to-org-eval-string-at-point)
+    (define-key map (kbd "C-c C-m s") 'mysql-to-org-scratch)
     map))
 
 (defun mysql-to-org--eval-process-filter (proc str)
