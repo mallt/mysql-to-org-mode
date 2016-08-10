@@ -4,7 +4,7 @@
 ;;
 ;; Author: Tijs Mallaerts <tijs.mallaerts@gmail.com>
 
-;; Package-Requires: ((emacs "24.3") (s "1.11.0") (company "0.9.0"))
+;; Package-Requires: ((emacs "24.3") (s "1.11.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@
 
 (require 'org)
 (require 's)
-(require 'company)
 (require 'comint)
 (require 'sql)
 (require 'cl-lib)
@@ -84,36 +83,32 @@ STR is the output string of the PROC."
                  (kill-line))
         (insert str)))))
 
-(defun mysql-to-org--company-process-filter (proc str)
-  "The company filter for the mysql to org PROC.
+(defun mysql-to-org--completion-process-filter (proc str)
+  "The completion filter for the mysql to org PROC.
 STR is the output string of the PROC."
-  (with-current-buffer (get-buffer-create "mysql-to-org-company")
+  (with-current-buffer (get-buffer-create "mysql-to-org-completion")
     (insert str)))
 
-(defun mysql-to-org--load-company-candidates ()
-  "Load company completion candidates into mysql-to-org-company buffer."
+(defun mysql-to-org--load-completion-candidates ()
+  "Load completion candidates into mysql-to-org-completion buffer."
   (let* ((proc (get-process "mysql-to-org")))
     (while (not proc)
       (setq proc (get-process "mysql-to-org")))
     (set-process-filter proc
-                        'mysql-to-org--company-process-filter)
+                        'mysql-to-org--completion-process-filter)
     (process-send-string proc "SELECT DISTINCT TABLE_NAME FROM information_schema.tables;\n")
     (process-send-string proc "SELECT DISTINCT COLUMN_NAME FROM information_schema.columns;\n")))
 
-(defun mysql-to-org--company-backend (command &optional arg &rest ignored)
-  "Mysql to org company backend for completing of table and column names."
-  (interactive (list 'interactive))
-  (cl-case command
-    (interactive (company-begin-backend 'mysql-to-org--company-backend))
-    (prefix (company-grab-symbol))
-    (candidates (mapcar 'car
-                        (cl-remove-if-not
-                         (lambda (x) (string-prefix-p arg (car x)))
-                         (with-current-buffer (get-buffer "mysql-to-org-company")
-                           (s-match-strings-all "\\_<[a-z|_|0-9]*+\\_>"
-                                                (buffer-substring-no-properties
-                                                 (point-min) (point-max)))))))
-    (meta (format "%s" arg))))
+(defun mysql-to-org-complete-at-point ()
+  "Complete the symbol at point."
+  (when-let ((bounds (bounds-of-thing-at-point 'symbol)))
+    (list (car bounds)
+          (cdr bounds)
+          (mapcar 'car
+                  (with-current-buffer (get-buffer "mysql-to-org-completion")
+                    (s-match-strings-all "\\_<[a-z|_|0-9]*+\\_>"
+                                         (buffer-substring-no-properties
+                                          (point-min) (point-max))))))))
 
 (defun mysql-to-org--replace-query-params (query)
   "Replace the parameters of the QUERY by values supplied by the user."
@@ -134,8 +129,7 @@ STR is the output string of the PROC."
     (make-comint "mysql-to-org" "mysql" nil
                  (concat "-u" mysql-to-org-mysql-user)
                  (concat "-p" (read-passwd "mysql passwd: ")))
-    (mysql-to-org--load-company-candidates))
-  (add-to-list 'company-backends 'mysql-to-org--company-backend t))
+    (mysql-to-org--load-completion-candidates)))
 
 (defun mysql-to-org--mark-string-at-point ()
   "Mark the contents of the string at point."
@@ -187,15 +181,17 @@ STR is the output string of the PROC."
   (switch-to-buffer "*mysql-to-org-scratch*")
   (sql-mode)
   (setq sql-product 'mysql)
-  (mysql-to-org-mode)
-  (set (make-local-variable 'company-backends) '(mysql-to-org--company-backend)))
+  (mysql-to-org-mode))
 
 ;;;###autoload
 (define-minor-mode mysql-to-org-mode
   "Minor mode to output the results of mysql queries to org tables."
   :lighter " mysql->org"
   :keymap mysql-to-org-mode-map
-  :after-hook (mysql-to-org--start-process))
+  :after-hook (progn (mysql-to-org--start-process)
+                     (setq-local completion-at-point-functions
+                                 (append completion-at-point-functions
+                                         '(mysql-to-org-complete-at-point)))))
 
 (provide 'mysql-to-org)
 
