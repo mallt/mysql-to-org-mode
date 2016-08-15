@@ -180,7 +180,7 @@ STR is the output string of the PROC."
   (get-buffer-create "*mysql-to-org-scratch*")
   (switch-to-buffer "*mysql-to-org-scratch*")
   (sql-mode)
-  (setq sql-product 'mysql)
+  (sql-set-product 'mysql)
   (mysql-to-org-mode))
 
 ;;;###autoload
