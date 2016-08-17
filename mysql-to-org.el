@@ -55,6 +55,11 @@
   :type 'string
   :group 'mysql-to-org)
 
+(defcustom mysql-to-org-display-output-buffer-below-selected nil
+  "If non-nil the output buffer will be displayed below the selected window."
+  :type 'boolean
+  :group 'mysql-to-org)
+
 (defvar mysql-to-org-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-m e") 'mysql-to-org-eval)
@@ -163,7 +168,9 @@ STR is the output string of the PROC."
       (with-current-buffer (get-buffer-create "mysql-to-org-output")
         (erase-buffer))
       (process-send-string proc (mysql-to-org--replace-query-params query))
-      (display-buffer "mysql-to-org-output"))))
+      (if mysql-to-org-display-output-buffer-below-selected
+          (display-buffer-below-selected (get-buffer "mysql-to-org-output") '())
+        (display-buffer "mysql-to-org-output")))))
 
 ;;;###autoload
 (defun mysql-to-org-eval-string-at-point ()
