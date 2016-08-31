@@ -102,7 +102,8 @@ STR is the output string of the PROC."
     (set-process-filter proc
                         'mysql-to-org--completion-process-filter)
     (process-send-string proc "SELECT DISTINCT TABLE_NAME FROM information_schema.tables;\n")
-    (process-send-string proc "SELECT DISTINCT COLUMN_NAME FROM information_schema.columns;\n")))
+    (process-send-string proc "SELECT DISTINCT COLUMN_NAME FROM information_schema.columns;\n")
+    (process-send-string proc "SHOW DATABASES;\n")))
 
 (defun mysql-to-org-complete-at-point ()
   "Complete the symbol at point."
