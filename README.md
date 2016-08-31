@@ -20,6 +20,7 @@ The mysql command and the mysql user can be changed through the variables `mysql
   * <kbd>C-c C-m e</kbd> (`mysql-to-org-eval`): evaluate the mysql query inside the active region or current line.
   * <kbd>C-c C-m p</kbd> (`mysql-to-org-eval-string-at-point`): evaluate the string at point.
   * <kbd>C-c C-m s</kbd> (`mysql-to-org-scratch`): open a scratch buffer to evaluate mysql queries.
+  * <kbd>C-c C-m 1</kbd> (`mysql-to-org-only-show-output-window`): only show the output window with the query results.
 4. If a query contains parameters, you will be asked to supply values for these parameters in the minibuffer to evaluate the query. The regexp to find parameters can be customized with the `mysql-to-org-parameter-regexp` variable.
 5. All table names and column names are available for auto completion using the completion-at-point-functions.
 6. Query results are available as org tables.

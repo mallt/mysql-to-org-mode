@@ -65,6 +65,12 @@
     (define-key map (kbd "C-c C-m e") 'mysql-to-org-eval)
     (define-key map (kbd "C-c C-m p") 'mysql-to-org-eval-string-at-point)
     (define-key map (kbd "C-c C-m s") 'mysql-to-org-scratch)
+    (define-key map (kbd "C-c C-m 1") 'mysql-to-org-only-show-output-window)
+    map))
+
+(defvar mysql-to-org-output-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'kill-this-buffer)
     map))
 
 (defun mysql-to-org--eval-process-filter (proc str)
@@ -73,6 +79,7 @@ STR is the output string of the PROC."
   (let* ((buf (get-buffer-create "mysql-to-org-output")))
     (with-current-buffer buf
       (org-mode)
+      (mysql-to-org-output-mode)
       (if (string-match-p "mysql>" str)
           (progn (insert str)
                  (save-excursion
@@ -149,6 +156,12 @@ STR is the output string of the PROC."
         (goto-char (- sexp-end 1))
         (exchange-point-and-mark)))))
 
+(defun mysql-to-org-only-show-output-window ()
+  "Switch to the output window and delete all other windows."
+  (interactive)
+  (switch-to-buffer "mysql-to-org-output")
+  (delete-other-windows))
+
 ;;;###autoload
 (defun mysql-to-org-eval ()
   "Evaluate the query inside the active region or current line."
@@ -200,6 +213,11 @@ STR is the output string of the PROC."
                      (setq-local completion-at-point-functions
                                  (append completion-at-point-functions
                                          '(mysql-to-org-complete-at-point)))))
+
+(define-minor-mode mysql-to-org-output-mode
+  "Minor mode for the mysql-to-org output buffer."
+  :lighter " mysql->org-output"
+  :keymap mysql-to-org-output-mode-map)
 
 (provide 'mysql-to-org)
 
