@@ -73,6 +73,10 @@
     (define-key map (kbd "q") 'kill-this-buffer)
     map))
 
+(defun mysql-to-org--remove-control-m-from-string (str)
+  "Remove ^M characters from STR."
+  (replace-regexp-in-string (char-to-string 13) "" str))
+
 (defun mysql-to-org--eval-process-filter (proc str)
   "The evaluation filter for the mysql to org PROC.
 STR is the output string of the PROC."
@@ -81,10 +85,11 @@ STR is the output string of the PROC."
       (org-mode)
       (mysql-to-org-output-mode)
       (if (string-match-p "mysql>" str)
-          (progn (insert str)
+          (progn (insert (mysql-to-org--remove-control-m-from-string str))
                  (save-excursion
                    (goto-char (point-min))
-                   (when (string= "+" (thing-at-point 'char))
+                   (when (re-search-forward "+" (point-max) t)
+                     (beginning-of-line)
                      (kill-line)
                      (forward-line 2)
                      (kill-line)
@@ -93,7 +98,7 @@ STR is the output string of the PROC."
                  (goto-char (point-max))
                  (beginning-of-line)
                  (kill-line))
-        (insert str)))))
+        (insert (mysql-to-org--remove-control-m-from-string str))))))
 
 (defun mysql-to-org--completion-process-filter (proc str)
   "The completion filter for the mysql to org PROC.
