@@ -66,6 +66,7 @@
     (define-key map (kbd "C-c C-m p") 'mysql-to-org-eval-string-at-point)
     (define-key map (kbd "C-c C-m s") 'mysql-to-org-scratch)
     (define-key map (kbd "C-c C-m 1") 'mysql-to-org-only-show-output-window)
+    (define-key map (kbd "C-c C-m r") 'mysql-to-org-reload-completion-candidates)
     map))
 
 (defvar mysql-to-org-output-mode-map
@@ -166,6 +167,13 @@ STR is the output string of the PROC."
   (interactive)
   (switch-to-buffer "mysql-to-org-output")
   (delete-other-windows))
+
+(defun mysql-to-org-reload-completion-candidates ()
+  "Reloads the completion candidates."
+  (interactive)
+  (with-current-buffer (get-buffer-create "mysql-to-org-completion")
+    (erase-buffer))
+  (mysql-to-org--load-completion-candidates))
 
 ;;;###autoload
 (defun mysql-to-org-eval ()
