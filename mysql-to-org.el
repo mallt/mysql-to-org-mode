@@ -127,7 +127,8 @@ STR is the output string of the PROC."
                   (with-current-buffer (get-buffer "mysql-to-org-completion")
                     (s-match-strings-all "\\_<[a-z|_|0-9]*+\\_>"
                                          (buffer-substring-no-properties
-                                          (point-min) (point-max))))))))
+                                          (point-min) (point-max)))))
+          :exclusive 'no)))
 
 (defun mysql-to-org--replace-query-params (query)
   "Replace the parameters of the QUERY by values supplied by the user."
