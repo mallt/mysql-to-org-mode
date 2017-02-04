@@ -36,6 +36,8 @@
 (require 'sql)
 (require 'cl-lib)
 
+(defvar mysql-to-org-mode-line-text " m->o")
+
 (defgroup mysql-to-org nil
   "Mysql to org customizations."
   :group 'processes)
@@ -98,7 +100,8 @@ STR is the output string of the PROC."
                      (org-cycle)))
                  (goto-char (point-max))
                  (beginning-of-line)
-                 (kill-line))
+                 (kill-line)
+                 (mysql-to-org--refresh-lighter))
         (insert (mysql-to-org--remove-control-m-from-string str))))))
 
 (defun mysql-to-org--completion-process-filter (proc str)
@@ -106,6 +109,14 @@ STR is the output string of the PROC."
 STR is the output string of the PROC."
   (with-current-buffer (get-buffer-create "mysql-to-org-completion")
     (insert str)))
+
+(defun mysql-to-org--refresh-lighter-process-filter (proc str)
+  "The refresh lighter filter for the mysql to org PROC.
+STR is the output string of the PROC containing the currently
+selected database."
+  (let ((selected-db (nth 8 (split-string str))))
+    (setq mysql-to-org-mode-line-text (concat " m->o[" selected-db "]"))
+    (force-mode-line-update)))
 
 (defun mysql-to-org--load-completion-candidates ()
   "Load completion candidates into mysql-to-org-completion buffer."
@@ -117,6 +128,15 @@ STR is the output string of the PROC."
     (process-send-string proc "SELECT DISTINCT TABLE_NAME FROM information_schema.tables;\n")
     (process-send-string proc "SELECT DISTINCT COLUMN_NAME FROM information_schema.columns;\n")
     (process-send-string proc "SHOW DATABASES;\n")))
+
+(defun mysql-to-org--refresh-lighter ()
+  "Refresh the currently selected database in the lighter."
+  (let* ((proc (get-process "mysql-to-org")))
+    (while (not proc)
+      (setq proc (get-process "mysql-to-org")))
+    (set-process-filter proc
+                        'mysql-to-org--refresh-lighter-process-filter)
+    (process-send-string proc "SELECT DATABASE();\n")))
 
 (defun mysql-to-org-complete-at-point ()
   "Complete the symbol at point."
@@ -221,7 +241,7 @@ STR is the output string of the PROC."
 ;;;###autoload
 (define-minor-mode mysql-to-org-mode
   "Minor mode to output the results of mysql queries to org tables."
-  :lighter " mysql->org"
+  :lighter mysql-to-org-mode-line-text
   :keymap mysql-to-org-mode-map
   :after-hook (progn (mysql-to-org--start-process)
                      (setq-local completion-at-point-functions
