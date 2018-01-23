@@ -87,7 +87,8 @@ STR is the output string of the PROC."
     (with-current-buffer buf
       (org-mode)
       (mysql-to-org-output-mode)
-      (if (string-match-p "mysql>" str)
+      (if (or (string-match-p "mysql>" str)
+              (string-match-p "MariaDB \\[" str))
           (progn (insert (mysql-to-org--remove-control-m-from-string str))
                  (save-excursion
                    (goto-char (point-min))
