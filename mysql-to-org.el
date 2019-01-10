@@ -62,6 +62,11 @@
   :type 'boolean
   :group 'mysql-to-org)
 
+(defcustom mysql-to-org-query-parts-requiring-confirmation '("DROP")
+  "List of strings for which a confirmation will be asked if the query contains one of them."
+  :type '(repeat string)
+  :group 'mysql-to-org)
+
 (defvar mysql-to-org-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-m e") 'mysql-to-org-eval)
@@ -222,15 +227,22 @@ selected database."
                       (line-end-position)))
            (region (buffer-substring-no-properties reg-beg reg-end))
            (replace (replace-regexp-in-string ";" "" region))
-           (query (concat (s-trim replace) ";\n")))
-      (set-process-filter proc
-                          'mysql-to-org--eval-process-filter)
-      (with-current-buffer (get-buffer-create "mysql-to-org-output")
-        (erase-buffer))
-      (process-send-string proc (mysql-to-org--replace-query-params query))
-      (if mysql-to-org-display-output-buffer-below-selected
-          (display-buffer-below-selected (get-buffer "mysql-to-org-output") '())
-        (display-buffer "mysql-to-org-output")))))
+           (query (concat (s-trim replace) ";\n"))
+           (confirmation-needed? (and mysql-to-org-query-parts-requiring-confirmation
+                                      (member t (mapcar (lambda (s)
+                                                          (s-contains? s query t))
+                                                        mysql-to-org-query-parts-requiring-confirmation)))))
+      (if (or (not confirmation-needed?)
+              (y-or-n-p "Are you sure you want to execute the query? "))
+          (progn (set-process-filter proc
+                                     'mysql-to-org--eval-process-filter)
+                 (with-current-buffer (get-buffer-create "mysql-to-org-output")
+                   (erase-buffer))
+                 (process-send-string proc (mysql-to-org--replace-query-params query))
+                 (if mysql-to-org-display-output-buffer-below-selected
+                     (display-buffer-below-selected (get-buffer "mysql-to-org-output") '())
+                   (display-buffer "mysql-to-org-output")))
+        (message "%s" "Query canceled")))))
 
 ;;;###autoload
 (defun mysql-to-org-eval-string-at-point ()
