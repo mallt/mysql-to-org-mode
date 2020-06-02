@@ -132,7 +132,9 @@ STR is the output string of the PROC."
   "The refresh lighter filter for the mysql to org PROC.
 STR is the output string of the PROC containing the currently
 selected database."
-  (let ((selected-db (nth 8 (split-string str))))
+  (let ((selected-db (if (s-contains-p "SHOW DATABASES" str)
+                         (nth 8 (split-string str))
+                       (nth 6 (split-string str)))))
     (setq mysql-to-org-mode-line-text (concat " m->o[" selected-db "]"))
     (force-mode-line-update)))
 
