@@ -186,7 +186,7 @@ selected database."
 (defun mysql-to-org--start-process ()
   "Start the mysql to org mysql process."
   (when (not (get-process "mysql-to-org"))
-    (make-comint "mysql-to-org" "mysql" nil
+    (make-comint "mysql-to-org" mysql-to-org-mysql-command nil
                  (concat "-u" mysql-to-org-mysql-user)
                  (concat "-p" (read-passwd "mysql passwd: ")))
     (mysql-to-org--load-completion-candidates)))
